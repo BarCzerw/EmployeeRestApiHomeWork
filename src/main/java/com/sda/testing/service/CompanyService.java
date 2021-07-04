@@ -1,15 +1,16 @@
 package com.sda.testing.service;
 
 import com.sda.testing.exception.InvalidOperation;
-import com.sda.testing.model.EmployeeDto;
-import com.sda.testing.model.EmployeeLevel;
-import com.sda.testing.model.TeamDto;
+import com.sda.testing.model.*;
 import com.sda.testing.repository.EmployeeRepository;
 import com.sda.testing.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class CompanyService {
      * @return sum of salaries.
      */
     public double summarizeSalaries(){
-        return 0;
+        return sumOfSalaries(employeeRepository.findAll());
     }
 
     /**
@@ -31,7 +32,11 @@ public class CompanyService {
      * @return sum of salaries.
      */
     public double salaries(EmployeeLevel level){
-        return 0.0;
+        return sumOfSalaries(employeeRepository.findAllByLevel(level));
+    }
+
+    private double sumOfSalaries(List<Employee> employeeList) {
+        return employeeList.stream().mapToDouble(Employee::getSalary).sum();
     }
 
     /**
@@ -40,7 +45,23 @@ public class CompanyService {
      * @throws InvalidOperation can be thrown if name, surname, or salary has not been provided.
      */
     public void hireEmployee(EmployeeDto employeeDto) throws InvalidOperation {
+        if (validateHiredEmployee(employeeDto)) {
+            employeeRepository.save(
+                    Employee.builder()
+                            .firstName(employeeDto.getName())
+                            .lastName(employeeDto.getSurname())
+                            .salary(employeeDto.getGrossSalary())
+                            .build()
+            );
+        } else {
+            throw new InvalidOperation();
+        }
+    }
 
+    private boolean validateHiredEmployee(EmployeeDto employeeDto) {
+        return Objects.nonNull(employeeDto)
+                && Objects.nonNull(employeeDto.getName())
+                && Objects.nonNull(employeeDto.getSurname());
     }
 
     /**
@@ -48,7 +69,7 @@ public class CompanyService {
      * @param employeeId - employee which should be fired.
      */
     public void fireEmployee(Long employeeId){
-
+        employeeRepository.findById(employeeId).ifPresent(employeeRepository::delete);
     }
 
     /**
@@ -57,7 +78,13 @@ public class CompanyService {
      * @throws InvalidOperation - exception might be thrown if team name is not unique.
      */
     public void createTeam(String teamName) throws InvalidOperation{
-
+        if (Objects.nonNull(teamName) && teamRepository.findByTeamName(teamName).isPresent()) {
+            teamRepository.save(Team.builder()
+                    .name(teamName)
+                    .build());
+        } else {
+            throw new InvalidOperation();
+        }
     }
 
     /**
@@ -66,14 +93,19 @@ public class CompanyService {
      * @throws InvalidOperation - if team name is incorrect/or null or team does not exist, exception will be thrown.
      */
     public void removeTeam(String teamName) throws InvalidOperation{
-
+        Optional<Team> teamOptional = teamRepository.findByTeamName(teamName);
+        if (Objects.nonNull(teamName) && teamOptional.isPresent()) {
+            teamRepository.delete(teamOptional.get());
+        } else {
+            throw new InvalidOperation();
+        }
     }
 
     /**
      * List team names.
      */
     public List<String> listTeams(){
-        return null;
+        return teamRepository.findAll().stream().map(Team::getName).collect(Collectors.toList());
     }
 
     /**

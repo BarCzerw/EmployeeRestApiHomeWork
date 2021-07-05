@@ -83,7 +83,7 @@ public class CompanyService {
      * @throws InvalidOperation - exception might be thrown if team name is not unique.
      */
     public void createTeam(String teamName) throws InvalidOperation {
-        if (Objects.nonNull(teamName) && teamRepository.findByTeamName(teamName).isPresent()) {
+        if (Objects.nonNull(teamName) && teamRepository.findByName(teamName).isPresent()) {
             teamRepository.save(Team.builder()
                     .name(teamName)
                     .build());
@@ -99,7 +99,7 @@ public class CompanyService {
      * @throws InvalidOperation - if team name is incorrect/or null or team does not exist, exception will be thrown.
      */
     public void removeTeam(String teamName) throws InvalidOperation {
-        Optional<Team> teamOptional = teamRepository.findByTeamName(teamName);
+        Optional<Team> teamOptional = teamRepository.findByName(teamName);
         if (Objects.nonNull(teamName) && teamOptional.isPresent()) {
             teamRepository.delete(teamOptional.get());
         } else {
@@ -124,7 +124,7 @@ public class CompanyService {
      */
     public void addEmployeeToTeam(Long employeeId, String teamName) throws InvalidOperation {
         Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
-        Optional<Team> teamOptional = teamRepository.findByTeamName(teamName);
+        Optional<Team> teamOptional = teamRepository.findByName(teamName);
 
         boolean addedSucessfully = false;
 
@@ -185,7 +185,7 @@ public class CompanyService {
      * @throws InvalidOperation can be thrown if team does not exist, it's name is invalid or null.
      */
     public TeamDto teamInfo(String teamName) throws InvalidOperation {
-        Optional<Team> teamOptional = teamRepository.findByTeamName(teamName);
+        Optional<Team> teamOptional = teamRepository.findByName(teamName);
         if (teamOptional.isPresent()) {
             Team team = teamOptional.get();
 
@@ -212,7 +212,7 @@ public class CompanyService {
     }
 
     private Optional<Employee> findTeamMemberOfLevel(String teamName, EmployeeLevel level) {
-        Optional<Team> teamOptional = teamRepository.findByTeamName(teamName);
+        Optional<Team> teamOptional = teamRepository.findByName(teamName);
         if (teamOptional.isPresent()) {
             Team team = teamOptional.get();
             return team.getEmployeeSet().stream().filter(employee -> employee.getLevel() == level).findFirst();

@@ -8,10 +8,12 @@ import com.sda.testing.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 @Configuration
 @RequiredArgsConstructor
+@Profile(value = {"production"})
 public class DataInitializer implements ApplicationListener<ContextRefreshedEvent> {
     private final EmployeeRepository employeeRepository;
     private final TeamRepository teamRepository;

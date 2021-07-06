@@ -32,8 +32,8 @@ public class EmployeeController {
         return ResponseEntity.ok(new ResponseMessage<>(employeeService.findAll(), "Response OK!"));
     }
 
-    @GetMapping("/level/{level}")
-    public ResponseEntity<ResponseMessage<List<Employee>>> getAllEmployeesByLevel(@PathVariable(required = false) EmployeeLevel level) {
+    @GetMapping("/level")
+    public ResponseEntity<ResponseMessage<List<Employee>>> getAllEmployeesByLevel(@RequestParam(required = false) EmployeeLevel level) {
         return ResponseEntity.ok(new ResponseMessage<>(employeeService.findAllFrom(level), "Response OK!"));
     }
 
@@ -42,10 +42,10 @@ public class EmployeeController {
             @RequestParam(required = false) Double salaryFrom,
             @RequestParam(required = false) Double salaryTo)
     {
-        return ResponseEntity.ok(new ResponseMessage<>(employeeService.findAllBySalary(salaryFrom, salaryTo), "Respone OK!"));
+        return ResponseEntity.ok(new ResponseMessage<>(employeeService.findAllBySalary(salaryFrom, salaryTo), "Response OK!"));
     }
 
-    @PostMapping("/salaryRaise")
+    @GetMapping("/salaryRaise")
     public ResponseEntity<ResponseMessage> giveRaise(long employeeId, double percentRaise) {
         try {
             employeeService.giveRaise(employeeId, percentRaise);
@@ -56,7 +56,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/promote")
-    public ResponseEntity<ResponseMessage> promoteEmployee(long employeeId) {
+    public ResponseEntity<ResponseMessage> promoteEmployee(@RequestBody(required = true) long employeeId) {
         try {
             employeeService.givePromotion(employeeId);
             return ResponseEntity.status(HttpStatus.OK).build();

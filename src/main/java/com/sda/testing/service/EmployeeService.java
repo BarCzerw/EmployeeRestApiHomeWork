@@ -55,11 +55,13 @@ public class EmployeeService {
         Optional<Double> upperBoundOptional = Optional.ofNullable(salaryTo);
 
         double lowerBound = lowerBoundOptional.orElse(0d);
-        double upperBound = upperBoundOptional.orElse(0d);
+        double upperBound = upperBoundOptional.orElse(Double.MAX_VALUE);
 
-        return findAll().stream().filter(employee ->
+        List<Employee> foundEmployees = findAll().stream().filter(employee ->
                 employee.getSalary() > lowerBound && employee.getSalary() < upperBound
         ).collect(Collectors.toList());
+
+        return foundEmployees;
 
     }
 
@@ -125,6 +127,8 @@ public class EmployeeService {
                     throw new InvalidOperation();
             }
 
+        } else {
+            throw new InvalidOperation();
         }
     }
 }

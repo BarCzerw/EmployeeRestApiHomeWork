@@ -9,4 +9,6 @@ import java.util.List;
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findAllByLevel(EmployeeLevel level);
+
+    Employee findByFirstNameAndLastName(String firstName, String lastName);
 }

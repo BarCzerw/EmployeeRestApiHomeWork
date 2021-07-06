@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("tests")
@@ -71,6 +72,15 @@ class EmployeeServiceTests {
             Assertions.assertEquals(TEST_EMPLOYEE_LAST_NAME, employee.getLastName());
             Assertions.assertEquals(TEST_EMPLOYEE_SALARY, employee.getSalary());
         }
+
+        @Test
+        void addedEmployeeCanBeDeleted() {
+            List<Employee> list = employeeService.findAll();
+            Employee employee = list.get(0);
+            long employeeId = employee.getId();
+            employeeRepository.delete(employee);
+            Assertions.assertFalse(employeeRepository.findById(employeeId).isPresent());
+        }
     }
 
     private void assert_initiallyEmpty() {
@@ -101,6 +111,29 @@ class EmployeeServiceTests {
                 employeeService.giveRaise(9999999L, 20.0);
             });
             Assertions.assertNotNull(e);
+        }
+
+        @Test
+        void canGiveRaiseToValidEmployee() {
+            final double SALARY_RAISE_PERCENT = 6.0;
+            final String EMPLOYEE_FIRST_NAME = "Jan";
+            final String EMPLOYEE_LAST_NAME = "Kowalski";
+            final long EMPLOYEE_ID = 1L;
+
+            double initialSalary = getCurrentSalary(EMPLOYEE_FIRST_NAME, EMPLOYEE_LAST_NAME);
+
+            try {
+                employeeService.giveRaise(EMPLOYEE_ID,SALARY_RAISE_PERCENT);
+            } catch (InvalidOperation invalidOperation) {
+                invalidOperation.printStackTrace();
+            }
+            double raisedSalary = getCurrentSalary(EMPLOYEE_FIRST_NAME, EMPLOYEE_LAST_NAME);
+            Assertions.assertEquals(raisedSalary,initialSalary*(1+(SALARY_RAISE_PERCENT/100)));
+        }
+
+        private double getCurrentSalary(String firstName, String lastName) {
+            Employee employee = employeeRepository.findByFirstNameAndLastName(firstName, lastName);
+            return employee.getSalary();
         }
 
     }
